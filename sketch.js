@@ -154,6 +154,117 @@ let sampleDebugCtx = null
 let collisionOverlayAttached = false
 let triggerCooldown = 0
 
+// ============================================================
+// ✅ Responsive positioning — initial window as reference
+// ============================================================
+let initW = 0  // setup()에서 기록
+let initH = 0
+
+// 원래 고정 px 위치 (setup 시점 기준)
+const LABEL_POSITIONS = [
+  { n: 'A', left: 345, top: 32 },
+  { n: 'B', left: 530, top: 32 },
+  { n: 'C', left: 670, top: 32 },
+  { n: 'D', left: 810, top: 32 },
+  { n: 'E', left: 950, top: 32 },
+  { n: 'F', left: 1090, top: 32 },
+  { n: 'G', left: 1230, top: 32 },
+  { n: 'H', left: 1370, top: 32 },
+  { n: 'I', left: 1510, top: 32 },
+  { n: 'J', left: 1690, top: 32 },
+
+  { n: 'K', left: 1690, top: 220 },
+  { n: 'L', left: 1690, top: 360 },
+  { n: 'M', left: 1690, top: 500 },
+  { n: 'N', left: 1690, top: 640 },
+  { n: 'O', left: 1690, top: 780 },
+  { n: 'P', left: 1690, top: 970 },
+
+  { n: 'Q', left: 1510, top: 970 },
+  { n: 'R', left: 1370, top: 970 },
+  { n: 'S', left: 1230, top: 970 },
+  { n: 'T', left: 1090, top: 970 },
+  { n: 'U', left: 950, top: 970 },
+  { n: 'V', left: 810, top: 970 },
+  { n: 'W', left: 670, top: 970 },
+  { n: 'X', left: 530, top: 970 },
+  { n: 'Y', left: 345, top: 970 },
+
+  { n: 'Z', left: 345, top: 780 },
+  { n: '←', left: 345, top: 640 },
+  { n: 'Space', left: 365, top: 500 },
+  { n: '?', left: 345, top: 360 },
+  { n: '!', left: 345, top: 220 },
+]
+
+// 박스/기타 원래 px 값
+const BOX_X = 30, BOX_Y = 30, BOX_SIZE = 70, BOX_GAP = 10
+const DIVIDER_X = 30, DIVIDER_Y = 765, DIVIDER_W = 230
+const DESC_X = 30, DESC_Y = 782, DESC_W = 230
+
+// DOM element references for repositioning
+let labelEls = []
+let dividerEl = null
+let descEl = null
+
+// ============================================================
+// ✅ Reposition all UI elements based on current window size
+// ============================================================
+function repositionAllUI() {
+  const sx = windowWidth / initW    // 가로 스케일
+  const sy = windowHeight / initH   // 세로 스케일
+
+  // --- Labels ---
+  LABEL_POSITIONS.forEach((p, i) => {
+    if (!labelEls[i]) return
+    labelEls[i].style.left = (p.left * sx) + 'px'
+    labelEls[i].style.top = (p.top * sy) + 'px'
+  })
+
+  // --- Triggers (update positions) ---
+  letterTriggers = LABEL_POSITIONS
+    .filter((p) => {
+      if (typeof p.n !== 'string') return false
+      if (p.n >= 'A' && p.n <= 'Z') return true
+      return p.n === '!' || p.n === '?' || p.n === 'Space' || p.n === '←'
+    })
+    .map((p) => ({ ch: p.n, x: p.left * sx, y: p.top * sy }))
+
+  renderTriggerDebug(letterTriggers)
+
+  // --- Boxes ---
+  const scale = Math.min(sx, sy)
+  for (let idx = 0; idx < boxEls.length; idx++) {
+    const row = Math.floor(idx / 3)
+    const col = idx % 3
+    const bx = (BOX_X + col * (BOX_SIZE + BOX_GAP)) * sx
+    const by = (BOX_Y + row * (BOX_SIZE + BOX_GAP)) * sy
+    const bw = BOX_SIZE * sx
+    const bh = BOX_SIZE * sy
+    const el = boxEls[idx]
+    el.style.left = bx + 'px'
+    el.style.top = by + 'px'
+    el.style.width = bw + 'px'
+    el.style.height = bh + 'px'
+    el.style.fontSize = (35 * scale) + 'px'
+  }
+
+  // --- Divider ---
+  if (dividerEl) {
+    dividerEl.style.left = (DIVIDER_X * sx) + 'px'
+    dividerEl.style.top = (DIVIDER_Y * sy) + 'px'
+    dividerEl.style.width = (DIVIDER_W * sx) + 'px'
+  }
+
+  // --- Description ---
+  if (descEl) {
+    descEl.style.left = (DESC_X * sx) + 'px'
+    descEl.style.top = (DESC_Y * sy) + 'px'
+    descEl.style.width = (DESC_W * sx) + 'px'
+    descEl.style.fontSize = (11 * scale) + 'pt'
+  }
+}
+
 function ensureCollisionOverlay() {
   if (!collisionPg || !collisionPg.elt) return
   if (collisionOverlayAttached) return
@@ -229,119 +340,123 @@ function resizeSvgRedOverlay() {
 }
 
 function updateSvgBoundsForOverlay() {
-  // 기존 SVG 이미지 레이아웃을 그대로 재현:
-  // position: fixed; right: 0; top: 50%; transform: translateY(-50%);
-  // height: 100vh; width: auto;
-  const viewBoxW = (svgLineData && svgLineData.viewBoxW) ? svgLineData.viewBoxW : SVG_VIEWBOX_W_FALLBACK
-  const viewBoxH = (svgLineData && svgLineData.viewBoxH) ? svgLineData.viewBoxH : SVG_VIEWBOX_H_FALLBACK
-  const aspect = viewBoxW / Math.max(1e-9, viewBoxH)
-
-  const h = Math.max(1, windowHeight)
-  const w = h * aspect
-  const left = windowWidth - w
-  const top = 0
-  const right = left + w
-  const bottom = top + h
-
-  // DOMRect 유사 형태로 저장
+  // 코드 기반 라인에서도 바운스 경계를 계산하기 위해 유지
+  // 전체 화면을 사용 (SVG 비율 대신 직접 화면 크기)
   svgBounds = {
-    x: left,
-    y: top,
-    left,
-    top,
-    right,
-    bottom,
-    width: w,
-    height: h,
+    x: 0,
+    y: 0,
+    left: 0,
+    top: 0,
+    right: windowWidth,
+    bottom: windowHeight,
+    width: windowWidth,
+    height: windowHeight,
   }
 }
 
-async function loadSvgLineData(url) {
-  const res = await fetch(url, { cache: 'no-cache' })
-  if (!res.ok) throw new Error('Failed to fetch SVG: ' + res.status)
-  const svgText = await res.text()
+// ============================================================
+// ✅ 코드 기반 그리드 라인 (SVG 대체)
+// ============================================================
+// SVG viewBox: 5442.52 × 3061.42 기준 좌표를 비율로 변환
+const VB_W = 5442.52
+const VB_H = 3061.42
 
-  const viewBoxMatch = svgText.match(/viewBox="\s*[-\d.]+\s+[-\d.]+\s+([\d.]+)\s+([\d.]+)\s*"/i)
-  const viewBoxW = viewBoxMatch ? parseFloat(viewBoxMatch[1]) : 1
-  const viewBoxH = viewBoxMatch ? parseFloat(viewBoxMatch[2]) : 1
+// 세로 라인 9개의 x 위치 (viewBox 비율)
+const VERT_X_RATIOS = [
+  1548.91 / VB_W, 1977.17 / VB_W, 2405.44 / VB_W, 2833.70 / VB_W,
+  3261.97 / VB_W, 3690.24 / VB_W, 4118.50 / VB_W, 4546.77 / VB_W, 4975.03 / VB_W
+]
+// 세로 라인 세그먼트 y 범위 (7개 세그먼트)
+const VERT_SEG_Y = [
+  [75.18 / VB_H, 413.90 / VB_H],
+  [503.90 / VB_H, 842.62 / VB_H],
+  [932.63 / VB_H, 1271.34 / VB_H],
+  [1361.35 / VB_H, 1700.07 / VB_H],
+  [1790.07 / VB_H, 2128.79 / VB_H],
+  [2218.80 / VB_H, 2557.51 / VB_H],
+  [2647.52 / VB_H, 2986.24 / VB_H],
+]
 
-  // Illustrator export: stroke-width: 3.44px
-  const strokeWidthMatch = svgText.match(/stroke-width:\s*([\d.]+)px/i)
-  const strokeWidth = strokeWidthMatch ? parseFloat(strokeWidthMatch[1]) : 3.44
+// 가로 라인 6개의 y 위치 (viewBox 비율)
+const HORIZ_Y_RATIOS = [
+  458.98 / VB_H, 886.73 / VB_H, 1314.47 / VB_H,
+  1742.22 / VB_H, 2169.96 / VB_H, 2597.70 / VB_H
+]
+// 가로 라인 세그먼트 x 범위 (11개 세그먼트)
+const HORIZ_SEG_X = [
+  [1163.62 / VB_W, 1502.34 / VB_W],
+  [1592.34 / VB_W, 1931.06 / VB_W],
+  [2021.07 / VB_W, 2359.78 / VB_W],
+  [2449.79 / VB_W, 2788.51 / VB_W],
+  [2878.51 / VB_W, 3217.23 / VB_W],
+  [3307.24 / VB_W, 3645.95 / VB_W],
+  [3735.96 / VB_W, 4074.68 / VB_W],
+  [4164.68 / VB_W, 4503.40 / VB_W],
+  [4593.40 / VB_W, 4932.12 / VB_W],
+  [5022.13 / VB_W, 5360.84 / VB_W],
+]
 
-  const segments = []
-  const lineRegex = /<line\b[^>]*\bx1="([^"]+)"[^>]*\by1="([^"]+)"[^>]*\bx2="([^"]+)"[^>]*\by2="([^"]+)"[^>]*(?:\/>|>)/gi
-  let m
-  while ((m = lineRegex.exec(svgText)) !== null) {
-    const x1 = parseFloat(m[1])
-    const y1 = parseFloat(m[2])
-    const x2 = parseFloat(m[3])
-    const y2 = parseFloat(m[4])
-    if (![x1, y1, x2, y2].every(Number.isFinite)) continue
-    segments.push({ x1, y1, x2, y2 })
+// SVG 원본의 화면 매핑 기준값 (초기 윈도우에서의 그리드 영역)
+// 원래 SVG는 right-aligned, height:100vh, aspect=VB_W/VB_H
+function getGridBounds() {
+  const sx = windowWidth / (initW || windowWidth)
+  const sy = windowHeight / (initH || windowHeight)
+  const aspect = VB_W / VB_H
+  const h = initH
+  const w = h * aspect
+  const left = initW - w
+  return {
+    left: left * sx,
+    top: 0,
+    width: w * sx,
+    height: h * sy,
   }
-
-  return { viewBoxW, viewBoxH, strokeWidth, segments }
 }
 
 function redrawSvgRedOverlay() {
-  if (!svgBounds) return
-  if (!svgLineData || !svgLineData.segments || svgLineData.segments.length === 0) return
-
   const ctx = ensureSvgRedOverlay()
   resizeSvgRedOverlay()
 
   const dpr = Math.max(1, window.devicePixelRatio || 1)
-  // draw in CSS pixel coordinates
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
   ctx.clearRect(0, 0, windowWidth, windowHeight)
 
-  const b = svgBounds
-  const sx = b.width / Math.max(1e-9, svgLineData.viewBoxW)
-  const sy = b.height / Math.max(1e-9, svgLineData.viewBoxH)
-
-  // uniform scale(이미지 비율 유지)라면 sx≈sy, 그래도 안전하게 y기반으로 두께 계산
-  const lineW = Math.max(1, svgLineData.strokeWidth * sy)
+  const gb = getGridBounds()
+  const lineW = Math.max(1, 3.44 * (gb.height / VB_H))
 
   ctx.save()
-  // SVG 대신 코드로 그리는 흰색 라인
   ctx.strokeStyle = 'rgba(255, 255, 255, 1)'
   ctx.lineWidth = lineW
   ctx.lineCap = 'round'
   ctx.lineJoin = 'miter'
   ctx.beginPath()
-  // 전체 화면 중앙 기준 90% 스케일 적용
-  const SCALE = 0.9
-  const centerX = windowWidth / 2
-  const centerY = windowHeight / 2
-  for (const seg of svgLineData.segments) {
-    let x1 = b.left + seg.x1 * sx
-    let y1 = b.top + seg.y1 * sy
-    let x2 = b.left + seg.x2 * sx
-    let y2 = b.top + seg.y2 * sy
-    x1 = (x1 - centerX) * SCALE + centerX
-    y1 = (y1 - centerY) * SCALE + centerY
-    x2 = (x2 - centerX) * SCALE + centerX
-    y2 = (y2 - centerY) * SCALE + centerY
-    ctx.moveTo(x1, y1)
-    ctx.lineTo(x2, y2)
+
+  // 세로 라인
+  for (const xr of VERT_X_RATIOS) {
+    const x = gb.left + xr * gb.width
+    for (const [y1r, y2r] of VERT_SEG_Y) {
+      ctx.moveTo(x, gb.top + y1r * gb.height)
+      ctx.lineTo(x, gb.top + y2r * gb.height)
+    }
   }
+
+  // 가로 라인
+  for (const yr of HORIZ_Y_RATIOS) {
+    const y = gb.top + yr * gb.height
+    for (const [x1r, x2r] of HORIZ_SEG_X) {
+      ctx.moveTo(gb.left + x1r * gb.width, y)
+      ctx.lineTo(gb.left + x2r * gb.width, y)
+    }
+  }
+
   ctx.stroke()
   ctx.restore()
 }
 
 function initSvgRedOverlay() {
-  // SVG 이미지는 제거하고, 코드로 흰 라인만 그림
   ensureSvgRedOverlay()
-  loadSvgLineData('libraries/line.svg')
-    .then((data) => {
-      svgLineData = data
-      updateSvgBoundsForOverlay()
-      redrawSvgRedOverlay()
-    })
-    .catch((err) => {
-      console.error('[svg red overlay] failed:', err)
-    })
+  updateSvgBoundsForOverlay()
+  redrawSvgRedOverlay()
 }
 
 function resizeSampleDebug() {
@@ -509,6 +624,11 @@ function renderTriggerDebug(triggers) {
 
 function setup() {
   noCanvas()
+
+  // ✅ 초기 윈도우 크기를 기준점으로 기록
+  initW = windowWidth
+  initH = windowHeight
+
   maskPg = createGraphics(windowWidth, windowHeight)
   maskPg.pixelDensity(1)
   maskPg.textAlign(CENTER, CENTER)
@@ -535,29 +655,12 @@ function setup() {
   initSvgRedOverlay()
   // 기존 SVG element 삽입 코드 완전 제거 (이미 없음)
 
-
-  // 화면 중앙 기준 90% 축소
-  const SCALE = 0.9
-  const centerX = windowWidth / 2
-  const centerY = windowHeight / 2
-
-  // 좌측 상단 흰색 라인 박스들: 가로 3개 × 세로 9줄 (총 27개)
-  const BOX_X = 30
-  const BOX_Y = 30
-  const BOX_SIZE = 70
-  const BOX_GAP = 10
+  // ✅ 좌측 상단 흰색 라인 박스들: 가로 3개 × 세로 9줄 (총 27개)
   boxEls = []
   for (let row = 0; row < 9; row++) {
     for (let col = 0; col < 3; col++) {
-      const origX = BOX_X + col * (BOX_SIZE + BOX_GAP)
-      const origY = BOX_Y + row * (BOX_SIZE + BOX_GAP)
-      const scaledX = (origX - centerX) * SCALE + centerX
-      const scaledY = (origY - centerY) * SCALE + centerY
       const box = createDiv('')
-      box.position(scaledX, scaledY)
       box.style('position', 'fixed')
-      box.style('width', (BOX_SIZE * SCALE) + 'px')
-      box.style('height', (BOX_SIZE * SCALE) + 'px')
       box.style('background', 'transparent')
       box.style('border', '1px solid #ffffff')
       box.style('box-sizing', 'border-box')
@@ -567,110 +670,50 @@ function setup() {
       box.style('align-items', 'center')
       box.style('justify-content', 'center')
       box.style('font-family', '"Courier New", Courier, monospace')
-      box.style('font-size', (35 * SCALE) + 'px')
       box.style('color', '#ffffff')
       boxEls.push(box.elt)
     }
   }
 
-  // 흰색 점선(divider)
-  const origDividerX = 30
-  const origDividerY = 765
-  const scaledDividerX = (origDividerX - centerX) * SCALE + centerX
-  const scaledDividerY = (origDividerY - centerY) * SCALE + centerY
+  // ✅ 흰색 점선(divider)
   const dividerLine = createDiv('')
-  dividerLine.position(scaledDividerX, scaledDividerY)
   dividerLine.style('position', 'fixed')
-  dividerLine.style('width', (230 * SCALE) + 'px')
   dividerLine.style('height', '0px')
   dividerLine.style('margin', '0')
   dividerLine.style('padding', '0')
-  dividerLine.style('border-top', (2 * SCALE) + 'px dotted #ffffff')
+  dividerLine.style('border-top', '2px dotted #ffffff')
   dividerLine.style('pointer-events', 'none')
   dividerLine.style('z-index', '9999')
+  dividerEl = dividerLine.elt
 
-  // 점선 아래 설명 텍스트
-  const origDescX = 30
-  const origDescY = 782
-  const scaledDescX = (origDescX - centerX) * SCALE + centerX
-  const scaledDescY = (origDescY - centerY) * SCALE + centerY
+  // ✅ 점선 아래 설명 텍스트
   const descText = createDiv('This work explores axial accumulation as a visual method, asking what kind of typeface might emerge when letterforms are layered and reassembled, shifting our perspective on what a font can become in future.')
-  descText.position(scaledDescX, scaledDescY)
   descText.style('position', 'fixed')
-  descText.style('width', (230 * SCALE) + 'px')
   descText.style('font-family', '"Courier New", Courier, monospace')
-  descText.style('font-size', (11 * SCALE) + 'pt')
   descText.style('color', '#ffffff')
   descText.style('line-height', '1.5')
   descText.style('pointer-events', 'none')
   descText.style('z-index', '9999')
+  descEl = descText.elt
 
-  // ✅ 숫자 위치를 하나하나 직접 입력 (원하는 값으로 수정)
-  // left/top은 화면 px 기준. transform은 글자 기준점(앵커)용.
-  const labelPositions = [
-    { n: 'A', left: 345, top: 32 },
-    { n: 'B', left: 530, top: 32 },
-    { n: 'C', left: 670, top: 32 },
-    { n: 'D', left: 810, top: 32 },
-    { n: 'E', left: 950, top: 32 },
-    { n: 'F', left: 1090, top: 32 },
-    { n: 'G', left: 1230, top: 32 },
-    { n: 'H', left: 1370, top: 32 },
-    { n: 'I', left: 1510, top: 32 },
-    { n: 'J', left: 1690, top: 32, },
-
-    { n: 'K', left: 1690, top: 220 },
-    { n: 'L', left: 1690, top: 360 },
-    { n: 'M', left: 1690, top: 500 },
-    { n: 'N', left: 1690, top: 640 },
-    { n: 'O', left: 1690, top: 780 },
-    { n: 'P', left: 1690, top: 970 },
-
-    { n: 'Q', left: 1510, top: 970 },
-    { n: 'R', left: 1370, top: 970 },
-    { n: 'S', left: 1230, top: 970 },
-    { n: 'T', left: 1090, top: 970 },
-    { n: 'U', left: 950, top: 970 },
-    { n: 'V', left: 810, top: 970 },
-    { n: 'W', left: 670, top: 970 },
-    { n: 'X', left: 530, top: 970 },
-    { n: 'Y', left: 345, top: 970 },
-
-    { n: 'Z', left: 345, top: 780 },
-    { n: '←', left: 345, top: 640 },
-    { n: 'Space', left: 365, top: 500 },
-    { n: '?', left: 345, top: 360 },
-    { n: '!', left: 345, top: 220 },
-  ]
-
-  // 트리거(충돌 기준점) 좌표 저장
-  // - A~Z, !, ?, Space, ←
-  letterTriggers = labelPositions
-    .filter((p) => {
-      if (typeof p.n !== 'string') return false
-      if (p.n >= 'A' && p.n <= 'Z') return true
-      return p.n === '!' || p.n === '?' || p.n === 'Space' || p.n === '←'
-    })
-    .map((p) => ({ ch: p.n, x: p.left, y: p.top }))
-
-  renderTriggerDebug(letterTriggers)
-
-  labelPositions.forEach((p) => {
-    const scaledLeft = (p.left - centerX) * SCALE + centerX
-    const scaledTop = (p.top - centerY) * SCALE + centerY
+  // ✅ 라벨 (A~Z, !, ?, Space, ←) 생성
+  labelEls = []
+  LABEL_POSITIONS.forEach((p) => {
     const label = document.createElement('div')
     label.textContent = String(p.n)
     label.style.position = 'fixed'
-    label.style.left = scaledLeft + 'px'
-    label.style.top = scaledTop + 'px'
-    label.style.transform = p.transform || 'translate(-50%, -50%)'
+    label.style.transform = 'translate(-50%, -50%)'
     label.style.fontFamily = '"Courier New", Courier, monospace'
-    label.style.fontSize = (15 * SCALE) + 'pt'
+    label.style.fontSize = '15pt'
     label.style.color = '#ffffff'
     label.style.pointerEvents = 'none'
     label.style.zIndex = '9999'
     document.body.appendChild(label)
+    labelEls.push(label)
   })
+
+  // ✅ 비율 기반으로 모든 요소 위치 설정 (초기 + 리사이즈)
+  repositionAllUI()
 
   maskPg.background(0)
 
@@ -1174,7 +1217,8 @@ function windowResized() {
 
   updateCtrlFromPosition(windowWidth, windowHeight)
 
-  renderTriggerDebug(letterTriggers)
+  // ✅ 모든 UI 요소 + 트리거 위치 비율 기반 재배치
+  repositionAllUI()
 
   if (!DEBUG_SHOW_TRIGGERS && movingDebugEl) {
     movingDebugEl.style.width = '0'
