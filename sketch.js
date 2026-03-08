@@ -155,10 +155,10 @@ let collisionOverlayAttached = false
 let triggerCooldown = 0
 
 // ============================================================
-// ✅ Responsive positioning — initial window as reference
+// ✅ Responsive positioning — fixed 1920×1080 reference
 // ============================================================
-let initW = 0  // setup()에서 기록
-let initH = 0
+const REF_W = 1920  // 기준 해상도 (고정)
+const REF_H = 1080  // 기준 해상도 (고정)
 
 // 원래 고정 px 위치 (setup 시점 기준)
 const LABEL_POSITIONS = [
@@ -211,8 +211,8 @@ let descEl = null
 // ✅ Reposition all UI elements based on current window size
 // ============================================================
 function repositionAllUI() {
-  const sx = windowWidth / initW    // 가로 스케일
-  const sy = windowHeight / initH   // 세로 스케일
+  const sx = windowWidth / REF_W    // 가로 스케일
+  const sy = windowHeight / REF_H   // 세로 스케일
 
   // --- Labels ---
   LABEL_POSITIONS.forEach((p, i) => {
@@ -399,12 +399,12 @@ const HORIZ_SEG_X = [
 // SVG 원본의 화면 매핑 기준값 (초기 윈도우에서의 그리드 영역)
 // 원래 SVG는 right-aligned, height:100vh, aspect=VB_W/VB_H
 function getGridBounds() {
-  const sx = windowWidth / (initW || windowWidth)
-  const sy = windowHeight / (initH || windowHeight)
+  const sx = windowWidth / REF_W
+  const sy = windowHeight / REF_H
   const aspect = VB_W / VB_H
-  const h = initH
+  const h = REF_H
   const w = h * aspect
-  const left = initW - w
+  const left = REF_W - w
   return {
     left: left * sx,
     top: 0,
@@ -625,10 +625,6 @@ function renderTriggerDebug(triggers) {
 function setup() {
   noCanvas()
 
-  // ✅ 초기 윈도우 크기를 기준점으로 기록
-  initW = windowWidth
-  initH = windowHeight
-
   maskPg = createGraphics(windowWidth, windowHeight)
   maskPg.pixelDensity(1)
   maskPg.textAlign(CENTER, CENTER)
@@ -812,16 +808,22 @@ function draw() {
   posX += velX
   posY += velY
 
-  // 벽 충돌 감지 및 반사 (SVG 영역 기준, 없으면 윈도우 전체)
+  // 벽 충돌 감지 및 반사 — 바운스 오프셋도 화면 비율에 맞게 스케일
   maskPg.textSize(fontPx)
   const halfW = Math.max(1, maskPg.textWidth(movingLetter) * 0.5)
   const halfH = Math.max(1, (maskPg.textAscent() + maskPg.textDescent()) * 0.5)
   const margin = 0.6
+  const _sx = windowWidth / REF_W
+  const _sy = windowHeight / REF_H
+  const scaledOffsetLeft = SVG_OFFSET_LEFT * _sx
+  const scaledOffsetRight = SVG_OFFSET_RIGHT * _sx
+  const scaledOffsetTop = SVG_OFFSET_TOP * _sy
+  const scaledOffsetBottom = SVG_OFFSET_BOTTOM * _sy
   const b = svgBounds
-  const minX = b ? b.left + SVG_OFFSET_LEFT + halfW * margin : halfW * margin
-  const maxX = b ? b.right - SVG_OFFSET_RIGHT - halfW * margin : Math.max(halfW * margin, maskPg.width - halfW * margin)
-  const minY = b ? b.top + SVG_OFFSET_TOP + halfH * margin : halfH * margin
-  const maxY = b ? b.bottom - SVG_OFFSET_BOTTOM - halfH * margin : Math.max(halfH * margin, maskPg.height - halfH * margin)
+  const minX = b ? b.left + scaledOffsetLeft + halfW * margin : halfW * margin
+  const maxX = b ? b.right - scaledOffsetRight - halfW * margin : Math.max(halfW * margin, maskPg.width - halfW * margin)
+  const minY = b ? b.top + scaledOffsetTop + halfH * margin : halfH * margin
+  const maxY = b ? b.bottom - scaledOffsetBottom - halfH * margin : Math.max(halfH * margin, maskPg.height - halfH * margin)
 
   // ------------------------------------------------------------
   // collision buffer는 매 프레임 업데이트 (트리거 판정/오버레이 공통)
@@ -877,9 +879,13 @@ function draw() {
   if (triggerCooldown > 0) triggerCooldown -= 1
 
   if (triggerCooldown === 0 && Array.isArray(letterTriggers) && letterTriggers.length > 0) {
-    const WALL_GAP_X = TRIGGER_GAP_X
-    const WALL_SEG_H_DEFAULT = TRIGGER_SEG_H_DEFAULT
-    const WALL_SEG_H_BOTTOM = TRIGGER_SEG_H_BOTTOM
+    // 트리거 치수도 화면 비율로 스케일
+    const _tsx = windowWidth / REF_W
+    const _tsy = windowHeight / REF_H
+    const _tscale = Math.min(_tsx, _tsy)
+    const WALL_GAP_X = TRIGGER_GAP_X * _tsx
+    const WALL_SEG_H_DEFAULT = TRIGGER_SEG_H_DEFAULT * _tsy
+    const WALL_SEG_H_BOTTOM = TRIGGER_SEG_H_BOTTOM * _tsy
 
     let dbg = null
     if (DEBUG_SHOW_TRIGGERS && DEBUG_SHOW_SAMPLE_POINTS) {
