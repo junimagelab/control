@@ -316,8 +316,8 @@ function ensureSvgRedOverlay() {
   canvas.style.position = 'fixed'
   canvas.style.left = '0'
   canvas.style.top = '0'
-  canvas.style.width = '100vw'
-  canvas.style.height = '100vh'
+  canvas.style.width = '100%'
+  canvas.style.height = '100%'
   canvas.style.pointerEvents = 'none'
   // svgOverlay(zIndex=9999)와 동일하게 두고, DOM 추가 순서로 위에 오게 함
   canvas.style.zIndex = '9999'
