@@ -6,19 +6,20 @@
 let movingLetter = '?'
 const SIZE_RATIO = 0.35
 const MOVE_SPEED = 6
+let maxSpeed = 9
 const CTRL_EDGE_PAD = 0.12
 
 // ============================================================
 // Trigger tuning / debug
 // ============================================================
 const TRIGGER_GAP_X = 70
-const TRIGGER_SEG_H_DEFAULT = 40
-const TRIGGER_SEG_H_BOTTOM = 56 // P~Y: 세로 ±7px
+const TRIGGER_SEG_H_DEFAULT = 125
+const TRIGGER_SEG_H_BOTTOM = 175 // 146 * 1.2
 // 90도 회전한 트리거(가로 10, 세로 70)
 // - 기존: x±70 위치의 "세로" 벽(높이 10)
 // - 회전: y±70 위치의 "가로" 벽(폭 10)
 const ROT_TRIGGER_GAP_Y = 42
-const ROT_TRIGGER_SEG_W = 40
+const ROT_TRIGGER_SEG_W = 125
 // 트리거에 "걸려서" 반복 판정되는 것 방지용
 const TRIGGER_COOLDOWN_FRAMES = 6
 const TRIGGER_GATE_PAD = 20
@@ -140,6 +141,39 @@ let hydraInitialized = false
 
 // 🎮 Gamepad
 let gamepadConnected = false
+let prevBtnState = []  // 버튼 디바운스용
+
+// 🎆 방사형 글자 발사 파티클
+let burstParticles = []
+
+function spawnBurst() {
+  const count = Math.floor(Math.random() * 21) + 10  // 10~30개 랜덤
+  const speed = 5
+  for (let i = 0; i < count; i++) {
+    const angle = (Math.PI * 2 / count) * i
+    const el = document.createElement('div')
+    el.textContent = movingLetter
+    el.style.position = 'fixed'
+    el.style.left = posX + 'px'
+    el.style.top = posY + 'px'
+    el.style.transform = 'translate(-50%, -50%)'
+    el.style.fontFamily = '"Courier New", Courier, monospace'
+    el.style.fontSize = '20pt'
+    el.style.fontWeight = 'bold'
+    el.style.color = '#ffffff'
+    el.style.pointerEvents = 'none'
+    el.style.zIndex = '10000'
+    document.body.appendChild(el)
+    burstParticles.push({
+      el,
+      x: posX,
+      y: posY,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      life: 600,  // 600프레임 (~10초)
+    })
+  }
+}
 window.addEventListener('gamepadconnected', (e) => {
   console.log('Gamepad connected:', e.gamepad.id)
   gamepadConnected = true
@@ -207,7 +241,7 @@ const LABEL_POSITIONS = [
 
   { n: 'Z', left: 375, top: 757 },
   { n: '←', left: 375, top: 621 },
-  { n: 'Space', left: 395, top: 485 },
+  { n: 'Space', left: 375, top: 485 },
   { n: '?', left: 375, top: 350 },
   { n: '!', left: 375, top: 214 },
 ]
@@ -543,7 +577,7 @@ function renderTriggerDebug(triggers) {
     el.style.top = yTop + 'px'
     el.style.width = '2px'
     el.style.height = h + 'px'
-    el.style.background = 'rgba(0, 255, 0, 0.65)'
+    el.style.background = 'rgba(255, 0, 255, 0.8)'
     el.style.mixBlendMode = 'screen'
     return el
   }
@@ -555,7 +589,7 @@ function renderTriggerDebug(triggers) {
     el.style.top = y + 'px'
     el.style.width = w + 'px'
     el.style.height = '2px'
-    el.style.background = 'rgba(0, 255, 0, 0.65)'
+    el.style.background = 'rgba(255, 0, 255, 0.8)'
     el.style.mixBlendMode = 'screen'
     return el
   }
@@ -573,7 +607,7 @@ function renderTriggerDebug(triggers) {
     el.style.height = '2px'
     el.style.transformOrigin = '0 50%'
     el.style.transform = `rotate(${ang}deg)`
-    el.style.background = 'rgba(0, 255, 0, 0.65)'
+    el.style.background = 'rgba(255, 0, 255, 0.8)'
     el.style.mixBlendMode = 'screen'
     return el
   }
@@ -805,7 +839,6 @@ function draw() {
   maskPg.background(0)
 
   const KEY_ACCEL = 0.6
-  const MAX_SPEED = 9
   const GAMEPAD_DEADZONE = 0.15
 
   // 키보드: 속도에 가속 적용
@@ -814,23 +847,51 @@ function draw() {
   if (keyIsDown(UP_ARROW) || keyIsDown(87)) velY -= KEY_ACCEL
   if (keyIsDown(DOWN_ARROW) || keyIsDown(83)) velY += KEY_ACCEL
 
-  // 🎮 조이스틱 (Gamepad API): 왼쪽 스틱으로 이동
-  if (gamepadConnected) {
+  // 🎮 조이스틱 (Gamepad API): 스틱 + D-pad 지원
+  if (navigator.getGamepads) {
     const gamepads = navigator.getGamepads()
     for (let i = 0; i < gamepads.length; i++) {
       const gp = gamepads[i]
       if (!gp) continue
+      // 아날로그 스틱 (axes 0,1)
       const axisX = gp.axes[0] || 0
       const axisY = gp.axes[1] || 0
       if (Math.abs(axisX) > GAMEPAD_DEADZONE) velX += axisX * KEY_ACCEL
       if (Math.abs(axisY) > GAMEPAD_DEADZONE) velY += axisY * KEY_ACCEL
+      // D-pad 버튼 (표준 매핑: 12=Up, 13=Down, 14=Left, 15=Right)
+      if (gp.buttons[14] && gp.buttons[14].pressed) velX -= KEY_ACCEL
+      if (gp.buttons[15] && gp.buttons[15].pressed) velX += KEY_ACCEL
+      if (gp.buttons[12] && gp.buttons[12].pressed) velY -= KEY_ACCEL
+      if (gp.buttons[13] && gp.buttons[13].pressed) velY += KEY_ACCEL
+      // 버튼 3: 글자 크기 +10px / 버튼 0: 글자 크기 -10px
+      const btn3 = gp.buttons[3] && gp.buttons[3].pressed
+      const btn0 = gp.buttons[0] && gp.buttons[0].pressed
+      if (btn3 && !prevBtnState[3]) fontPx = Math.max(10, fontPx + 20)
+      if (btn0 && !prevBtnState[0]) fontPx = Math.max(10, fontPx - 20)
+      prevBtnState[3] = btn3
+      prevBtnState[0] = btn0
+      // 버튼 1: 속도 감소 / 버튼 2: 속도 증가
+      const btn1 = gp.buttons[1] && gp.buttons[1].pressed
+      const btn2 = gp.buttons[2] && gp.buttons[2].pressed
+      if (btn1 && !prevBtnState[1]) maxSpeed += 1.5
+      if (btn2 && !prevBtnState[2]) maxSpeed = Math.max(1.5, maxSpeed - 1.5)
+      prevBtnState[1] = btn1
+      prevBtnState[2] = btn2
+      // 버튼 5: 방사형 글자 발사
+      const btn5 = gp.buttons[5] && gp.buttons[5].pressed
+      if (btn5 && !prevBtnState[5]) spawnBurst()
+      prevBtnState[5] = btn5
+      // 버튼 9: 페이지 리셋
+      if (gp.buttons[9] && gp.buttons[9].pressed) {
+        window.location.reload()
+      }
       break
     }
   }
 
   // 최대 속도 제한
-  velX = constrain(velX, -MAX_SPEED, MAX_SPEED)
-  velY = constrain(velY, -MAX_SPEED, MAX_SPEED)
+  velX = constrain(velX, -maxSpeed, maxSpeed)
+  velY = constrain(velY, -maxSpeed, maxSpeed)
 
   // 위치 업데이트
   const prevX = posX
@@ -1223,6 +1284,26 @@ function draw() {
   maskPg.textStyle(BOLD)
   maskPg.text(movingLetter, 0, 0)
   maskPg.pop()
+
+  // 🎆 방사형 파티클 업데이트 (화면 안에서 바운스)
+  for (let i = burstParticles.length - 1; i >= 0; i--) {
+    const p = burstParticles[i]
+    p.x += p.vx
+    p.y += p.vy
+    p.life--
+    // 화면 가장자리에서 바운스
+    if (p.x <= 0 || p.x >= windowWidth) p.vx = -p.vx
+    if (p.y <= 0 || p.y >= windowHeight) p.vy = -p.vy
+    p.x = constrain(p.x, 0, windowWidth)
+    p.y = constrain(p.y, 0, windowHeight)
+    p.el.style.left = p.x + 'px'
+    p.el.style.top = p.y + 'px'
+    // 10초 지나면 제거
+    if (p.life <= 0) {
+      p.el.remove()
+      burstParticles.splice(i, 1)
+    }
+  }
 }
 
 function windowResized() {
