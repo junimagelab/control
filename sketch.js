@@ -137,6 +137,17 @@ let velX = 2.5
 let velY = 1.8
 let rot = 0
 let hydraInitialized = false
+
+// 🎮 Gamepad
+let gamepadConnected = false
+window.addEventListener('gamepadconnected', (e) => {
+  console.log('Gamepad connected:', e.gamepad.id)
+  gamepadConnected = true
+})
+window.addEventListener('gamepaddisconnected', () => {
+  console.log('Gamepad disconnected')
+  gamepadConnected = false
+})
 let maskPg = null
 let collisionPg = null
 let svgOverlay = null
@@ -804,14 +815,17 @@ function draw() {
   if (keyIsDown(DOWN_ARROW) || keyIsDown(83)) velY += KEY_ACCEL
 
   // 🎮 조이스틱 (Gamepad API): 왼쪽 스틱으로 이동
-  const gamepads = navigator.getGamepads ? navigator.getGamepads() : []
-  for (const gp of gamepads) {
-    if (!gp) continue
-    const axisX = gp.axes[0] || 0  // 왼쪽 스틱 X
-    const axisY = gp.axes[1] || 0  // 왼쪽 스틱 Y
-    if (Math.abs(axisX) > GAMEPAD_DEADZONE) velX += axisX * KEY_ACCEL
-    if (Math.abs(axisY) > GAMEPAD_DEADZONE) velY += axisY * KEY_ACCEL
-    break  // 첫 번째 게임패드만 사용
+  if (gamepadConnected) {
+    const gamepads = navigator.getGamepads()
+    for (let i = 0; i < gamepads.length; i++) {
+      const gp = gamepads[i]
+      if (!gp) continue
+      const axisX = gp.axes[0] || 0
+      const axisY = gp.axes[1] || 0
+      if (Math.abs(axisX) > GAMEPAD_DEADZONE) velX += axisX * KEY_ACCEL
+      if (Math.abs(axisY) > GAMEPAD_DEADZONE) velY += axisY * KEY_ACCEL
+      break
+    }
   }
 
   // 최대 속도 제한
