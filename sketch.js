@@ -310,11 +310,19 @@ function redrawSvgRedOverlay() {
   ctx.lineCap = 'round'
   ctx.lineJoin = 'miter'
   ctx.beginPath()
+  // 전체 화면 중앙 기준 90% 스케일 적용
+  const SCALE = 0.9
+  const centerX = windowWidth / 2
+  const centerY = windowHeight / 2
   for (const seg of svgLineData.segments) {
-    const x1 = b.left + seg.x1 * sx
-    const y1 = b.top + seg.y1 * sy
-    const x2 = b.left + seg.x2 * sx
-    const y2 = b.top + seg.y2 * sy
+    let x1 = b.left + seg.x1 * sx
+    let y1 = b.top + seg.y1 * sy
+    let x2 = b.left + seg.x2 * sx
+    let y2 = b.top + seg.y2 * sy
+    x1 = (x1 - centerX) * SCALE + centerX
+    y1 = (y1 - centerY) * SCALE + centerY
+    x2 = (x2 - centerX) * SCALE + centerX
+    y2 = (y2 - centerY) * SCALE + centerY
     ctx.moveTo(x1, y1)
     ctx.lineTo(x2, y2)
   }
@@ -526,6 +534,12 @@ function setup() {
   updateSvgBoundsForOverlay()
   initSvgRedOverlay()
 
+
+  // 화면 중앙 기준 90% 축소
+  const SCALE = 0.9
+  const centerX = windowWidth / 2
+  const centerY = windowHeight / 2
+
   // 좌측 상단 흰색 라인 박스들: 가로 3개 × 세로 9줄 (총 27개)
   const BOX_X = 30
   const BOX_Y = 30
@@ -534,11 +548,15 @@ function setup() {
   boxEls = []
   for (let row = 0; row < 9; row++) {
     for (let col = 0; col < 3; col++) {
+      const origX = BOX_X + col * (BOX_SIZE + BOX_GAP)
+      const origY = BOX_Y + row * (BOX_SIZE + BOX_GAP)
+      const scaledX = (origX - centerX) * SCALE + centerX
+      const scaledY = (origY - centerY) * SCALE + centerY
       const box = createDiv('')
-      box.position(BOX_X + col * (BOX_SIZE + BOX_GAP), BOX_Y + row * (BOX_SIZE + BOX_GAP))
+      box.position(scaledX, scaledY)
       box.style('position', 'fixed')
-      box.style('width', BOX_SIZE + 'px')
-      box.style('height', BOX_SIZE + 'px')
+      box.style('width', (BOX_SIZE * SCALE) + 'px')
+      box.style('height', (BOX_SIZE * SCALE) + 'px')
       box.style('background', 'transparent')
       box.style('border', '1px solid #ffffff')
       box.style('box-sizing', 'border-box')
@@ -548,31 +566,39 @@ function setup() {
       box.style('align-items', 'center')
       box.style('justify-content', 'center')
       box.style('font-family', '"Courier New", Courier, monospace')
-      box.style('font-size', '35px')
+      box.style('font-size', (35 * SCALE) + 'px')
       box.style('color', '#ffffff')
       boxEls.push(box.elt)
     }
   }
 
   // 흰색 점선(divider)
+  const origDividerX = 30
+  const origDividerY = 765
+  const scaledDividerX = (origDividerX - centerX) * SCALE + centerX
+  const scaledDividerY = (origDividerY - centerY) * SCALE + centerY
   const dividerLine = createDiv('')
-  dividerLine.position(30, 765)
+  dividerLine.position(scaledDividerX, scaledDividerY)
   dividerLine.style('position', 'fixed')
-  dividerLine.style('width', '230px')
+  dividerLine.style('width', (230 * SCALE) + 'px')
   dividerLine.style('height', '0px')
   dividerLine.style('margin', '0')
   dividerLine.style('padding', '0')
-  dividerLine.style('border-top', '2px dotted #ffffff')
+  dividerLine.style('border-top', (2 * SCALE) + 'px dotted #ffffff')
   dividerLine.style('pointer-events', 'none')
   dividerLine.style('z-index', '9999')
 
   // 점선 아래 설명 텍스트
+  const origDescX = 30
+  const origDescY = 782
+  const scaledDescX = (origDescX - centerX) * SCALE + centerX
+  const scaledDescY = (origDescY - centerY) * SCALE + centerY
   const descText = createDiv('This work explores axial accumulation as a visual method, asking what kind of typeface might emerge when letterforms are layered and reassembled, shifting our perspective on what a font can become in future.')
-  descText.position(30, 782)
+  descText.position(scaledDescX, scaledDescY)
   descText.style('position', 'fixed')
-  descText.style('width', '230px')
+  descText.style('width', (230 * SCALE) + 'px')
   descText.style('font-family', '"Courier New", Courier, monospace')
-  descText.style('font-size', '11pt')
+  descText.style('font-size', (11 * SCALE) + 'pt')
   descText.style('color', '#ffffff')
   descText.style('line-height', '1.5')
   descText.style('pointer-events', 'none')
@@ -629,14 +655,16 @@ function setup() {
   renderTriggerDebug(letterTriggers)
 
   labelPositions.forEach((p) => {
+    const scaledLeft = (p.left - centerX) * SCALE + centerX
+    const scaledTop = (p.top - centerY) * SCALE + centerY
     const label = document.createElement('div')
     label.textContent = String(p.n)
     label.style.position = 'fixed'
-    label.style.left = p.left + 'px'
-    label.style.top = p.top + 'px'
+    label.style.left = scaledLeft + 'px'
+    label.style.top = scaledTop + 'px'
     label.style.transform = p.transform || 'translate(-50%, -50%)'
     label.style.fontFamily = '"Courier New", Courier, monospace'
-    label.style.fontSize = '15pt'
+    label.style.fontSize = (15 * SCALE) + 'pt'
     label.style.color = '#ffffff'
     label.style.pointerEvents = 'none'
     label.style.zIndex = '9999'
