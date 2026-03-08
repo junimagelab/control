@@ -157,8 +157,8 @@ let triggerCooldown = 0
 // ============================================================
 // ✅ Responsive positioning — fixed 1920×1080 reference
 // ============================================================
-const REF_W = 1920  // 기준 해상도 (고정)
-const REF_H = 1080  // 기준 해상도 (고정)
+const REF_W = 1727  // 기준 해상도 (고정)
+const REF_H = 972   // 기준 해상도 (고정)
 
 // 원래 고정 px 위치 (setup 시점 기준)
 const LABEL_POSITIONS = [
