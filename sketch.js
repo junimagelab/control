@@ -167,38 +167,38 @@ const REF_H = 972   // 기준 해상도 (고정)
 // 원래 고정 px 위치 (setup 시점 기준)
 const LABEL_POSITIONS = [
   { n: 'A', left: 375, top: 32 },
-  { n: 'B', left: 530, top: 32 },
-  { n: 'C', left: 670, top: 32 },
-  { n: 'D', left: 810, top: 32 },
-  { n: 'E', left: 950, top: 32 },
-  { n: 'F', left: 1090, top: 32 },
-  { n: 'G', left: 1230, top: 32 },
-  { n: 'H', left: 1370, top: 32 },
-  { n: 'I', left: 1510, top: 32 },
+  { n: 'B', left: 559, top: 32 },
+  { n: 'C', left: 695, top: 32 },
+  { n: 'D', left: 831, top: 32 },
+  { n: 'E', left: 967, top: 32 },
+  { n: 'F', left: 1103, top: 32 },
+  { n: 'G', left: 1239, top: 32 },
+  { n: 'H', left: 1375, top: 32 },
+  { n: 'I', left: 1511, top: 32 },
   { n: 'J', left: 1690, top: 32 },
 
-  { n: 'K', left: 1690, top: 220 },
-  { n: 'L', left: 1690, top: 360 },
-  { n: 'M', left: 1690, top: 500 },
-  { n: 'N', left: 1690, top: 640 },
-  { n: 'O', left: 1690, top: 780 },
+  { n: 'K', left: 1690, top: 214 },
+  { n: 'L', left: 1690, top: 350 },
+  { n: 'M', left: 1690, top: 485 },
+  { n: 'N', left: 1690, top: 621 },
+  { n: 'O', left: 1690, top: 757 },
   { n: 'P', left: 1690, top: 940 },
 
-  { n: 'Q', left: 1510, top: 940 },
-  { n: 'R', left: 1370, top: 940 },
-  { n: 'S', left: 1230, top: 940 },
-  { n: 'T', left: 1090, top: 940 },
-  { n: 'U', left: 950, top: 940 },
-  { n: 'V', left: 810, top: 940 },
-  { n: 'W', left: 670, top: 940 },
-  { n: 'X', left: 530, top: 940 },
+  { n: 'Q', left: 1511, top: 940 },
+  { n: 'R', left: 1375, top: 940 },
+  { n: 'S', left: 1239, top: 940 },
+  { n: 'T', left: 1103, top: 940 },
+  { n: 'U', left: 967, top: 940 },
+  { n: 'V', left: 831, top: 940 },
+  { n: 'W', left: 695, top: 940 },
+  { n: 'X', left: 559, top: 940 },
   { n: 'Y', left: 375, top: 940 },
 
-  { n: 'Z', left: 375, top: 780 },
-  { n: '←', left: 375, top: 640 },
-  { n: 'Space', left: 395, top: 500 },
-  { n: '?', left: 375, top: 360 },
-  { n: '!', left: 375, top: 220 },
+  { n: 'Z', left: 375, top: 757 },
+  { n: '←', left: 375, top: 621 },
+  { n: 'Space', left: 395, top: 485 },
+  { n: '?', left: 375, top: 350 },
+  { n: '!', left: 375, top: 214 },
 ]
 
 // 박스/기타 원래 px 값
@@ -795,12 +795,24 @@ function draw() {
 
   const KEY_ACCEL = 0.6
   const MAX_SPEED = 9
+  const GAMEPAD_DEADZONE = 0.15
 
   // 키보드: 속도에 가속 적용
   if (keyIsDown(LEFT_ARROW) || keyIsDown(65)) velX -= KEY_ACCEL
   if (keyIsDown(RIGHT_ARROW) || keyIsDown(68)) velX += KEY_ACCEL
   if (keyIsDown(UP_ARROW) || keyIsDown(87)) velY -= KEY_ACCEL
   if (keyIsDown(DOWN_ARROW) || keyIsDown(83)) velY += KEY_ACCEL
+
+  // 🎮 조이스틱 (Gamepad API): 왼쪽 스틱으로 이동
+  const gamepads = navigator.getGamepads ? navigator.getGamepads() : []
+  for (const gp of gamepads) {
+    if (!gp) continue
+    const axisX = gp.axes[0] || 0  // 왼쪽 스틱 X
+    const axisY = gp.axes[1] || 0  // 왼쪽 스틱 Y
+    if (Math.abs(axisX) > GAMEPAD_DEADZONE) velX += axisX * KEY_ACCEL
+    if (Math.abs(axisY) > GAMEPAD_DEADZONE) velY += axisY * KEY_ACCEL
+    break  // 첫 번째 게임패드만 사용
+  }
 
   // 최대 속도 제한
   velX = constrain(velX, -MAX_SPEED, MAX_SPEED)
