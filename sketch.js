@@ -530,9 +530,10 @@ function setup() {
 
   updateFontSize()
 
-  // ✅ SVG 이미지는 제거하고, 흰 라인을 코드로 렌더링
+  // ✅ SVG 이미지는 제거됨, 흰 라인을 코드로 렌더링
   updateSvgBoundsForOverlay()
   initSvgRedOverlay()
+  // 기존 SVG element 삽입 코드 완전 제거 (이미 없음)
 
 
   // 화면 중앙 기준 90% 축소
