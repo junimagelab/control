@@ -155,12 +155,13 @@ let collisionOverlayAttached = false
 let triggerCooldown = 0
 
 // ============================================================
-// ✅ Responsive positioning — initial window as reference
+// ✅ Responsive positioning — fixed reference resolution
 // ============================================================
-let initW = 0  // setup()에서 기록
-let initH = 0
+// 원래 디자인 기준 해상도 (모든 px 좌표가 이 기준)
+const REF_W = 1920
+const REF_H = 1024
 
-// 원래 고정 px 위치 (setup 시점 기준)
+// 원래 고정 px 위치 (REF_W × REF_H 기준)
 const LABEL_POSITIONS = [
   { n: 'A', left: 345, top: 32 },
   { n: 'B', left: 530, top: 32 },
@@ -197,7 +198,7 @@ const LABEL_POSITIONS = [
   { n: '!', left: 345, top: 220 },
 ]
 
-// 박스/기타 원래 px 값
+// 박스/기타 원래 px 값 (REF_W × REF_H 기준)
 const BOX_X = 30, BOX_Y = 30, BOX_SIZE = 70, BOX_GAP = 10
 const DIVIDER_X = 30, DIVIDER_Y = 765, DIVIDER_W = 230
 const DESC_X = 30, DESC_Y = 782, DESC_W = 230
@@ -211,8 +212,8 @@ let descEl = null
 // ✅ Reposition all UI elements based on current window size
 // ============================================================
 function repositionAllUI() {
-  const sx = windowWidth / initW    // 가로 스케일
-  const sy = windowHeight / initH   // 세로 스케일
+  const sx = windowWidth / REF_W    // 가로 스케일
+  const sy = windowHeight / REF_H   // 세로 스케일
 
   // --- Labels ---
   LABEL_POSITIONS.forEach((p, i) => {
@@ -396,15 +397,14 @@ const HORIZ_SEG_X = [
   [5022.13 / VB_W, 5360.84 / VB_W],
 ]
 
-// SVG 원본의 화면 매핑 기준값 (초기 윈도우에서의 그리드 영역)
-// 원래 SVG는 right-aligned, height:100vh, aspect=VB_W/VB_H
+// 그리드 영역: REF_W×REF_H 기준으로 계산한 뒤 현재 윈도우에 스케일링
 function getGridBounds() {
-  const sx = windowWidth / (initW || windowWidth)
-  const sy = windowHeight / (initH || windowHeight)
+  const sx = windowWidth / REF_W
+  const sy = windowHeight / REF_H
   const aspect = VB_W / VB_H
-  const h = initH
+  const h = REF_H
   const w = h * aspect
-  const left = initW - w
+  const left = REF_W - w
   return {
     left: left * sx,
     top: 0,
@@ -624,11 +624,6 @@ function renderTriggerDebug(triggers) {
 
 function setup() {
   noCanvas()
-
-  // ✅ 초기 윈도우 크기를 기준점으로 기록
-  initW = windowWidth
-  initH = windowHeight
-
   maskPg = createGraphics(windowWidth, windowHeight)
   maskPg.pixelDensity(1)
   maskPg.textAlign(CENTER, CENTER)
