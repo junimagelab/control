@@ -84,7 +84,11 @@ function pushToBox(ch) {
   const now = millis()
   if (now - lastBoxPushTime < BOX_PUSH_INTERVAL) return
   if (boxEls.length === 0) return
-  boxFillIndex = boxFillIndex % boxEls.length  // 넘치면 처음부터
+  // 27개 다 차면 전부 '?'로 리셋
+  if (boxFillIndex >= boxEls.length) {
+    for (let i = 0; i < boxEls.length; i++) boxEls[i].textContent = ''
+    boxFillIndex = 0
+  }
   boxEls[boxFillIndex].textContent = ch
   boxFillIndex++
   lastBoxPushTime = now
@@ -93,7 +97,7 @@ function popFromBox() {
   const now = millis()
   if (now - lastBoxPushTime < BOX_PUSH_INTERVAL) return
   if (boxEls.length === 0) return
-  if (boxFillIndex === 0) boxFillIndex = boxEls.length
+  if (boxFillIndex <= 0) return
   boxFillIndex--
   boxEls[boxFillIndex].textContent = ''
   lastBoxPushTime = now
@@ -162,7 +166,7 @@ const REF_H = 972   // 기준 해상도 (고정)
 
 // 원래 고정 px 위치 (setup 시점 기준)
 const LABEL_POSITIONS = [
-  { n: 'A', left: 345, top: 32 },
+  { n: 'A', left: 375, top: 32 },
   { n: 'B', left: 530, top: 32 },
   { n: 'C', left: 670, top: 32 },
   { n: 'D', left: 810, top: 32 },
@@ -178,23 +182,23 @@ const LABEL_POSITIONS = [
   { n: 'M', left: 1690, top: 500 },
   { n: 'N', left: 1690, top: 640 },
   { n: 'O', left: 1690, top: 780 },
-  { n: 'P', left: 1690, top: 970 },
+  { n: 'P', left: 1690, top: 940 },
 
-  { n: 'Q', left: 1510, top: 970 },
-  { n: 'R', left: 1370, top: 970 },
-  { n: 'S', left: 1230, top: 970 },
-  { n: 'T', left: 1090, top: 970 },
-  { n: 'U', left: 950, top: 970 },
-  { n: 'V', left: 810, top: 970 },
-  { n: 'W', left: 670, top: 970 },
-  { n: 'X', left: 530, top: 970 },
-  { n: 'Y', left: 345, top: 970 },
+  { n: 'Q', left: 1510, top: 940 },
+  { n: 'R', left: 1370, top: 940 },
+  { n: 'S', left: 1230, top: 940 },
+  { n: 'T', left: 1090, top: 940 },
+  { n: 'U', left: 950, top: 940 },
+  { n: 'V', left: 810, top: 940 },
+  { n: 'W', left: 670, top: 940 },
+  { n: 'X', left: 530, top: 940 },
+  { n: 'Y', left: 375, top: 940 },
 
-  { n: 'Z', left: 345, top: 780 },
-  { n: '←', left: 345, top: 640 },
-  { n: 'Space', left: 365, top: 500 },
-  { n: '?', left: 345, top: 360 },
-  { n: '!', left: 345, top: 220 },
+  { n: 'Z', left: 375, top: 780 },
+  { n: '←', left: 375, top: 640 },
+  { n: 'Space', left: 395, top: 500 },
+  { n: '?', left: 375, top: 360 },
+  { n: '!', left: 375, top: 220 },
 ]
 
 // 박스/기타 원래 px 값
