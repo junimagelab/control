@@ -63,10 +63,10 @@ const angled45VectorsForChar = (ch) => {
 
 
 // SVG 반사 경계 미세 조정 (px 단위, + 는 안쪽으로 줄이기, - 는 바깥으로 늘리기)
-const SVG_OFFSET_LEFT   =  400   // 왼쪽 경계
-const SVG_OFFSET_RIGHT  =  0   // 오른쪽 경계
-const SVG_OFFSET_TOP    =  -20   // 위쪽 경계
-const SVG_OFFSET_BOTTOM =  0   // 아래쪽 경계
+const SVG_OFFSET_LEFT = 400   // 왼쪽 경계
+const SVG_OFFSET_RIGHT = 0   // 오른쪽 경계
+const SVG_OFFSET_TOP = -20   // 위쪽 경계
+const SVG_OFFSET_BOTTOM = 0   // 아래쪽 경계
 
 // ============================================================
 // ✅ shared controls (p5 -> hydra)
@@ -97,7 +97,7 @@ function popFromBox() {
   boxFillIndex--
   boxEls[boxFillIndex].textContent = ''
   lastBoxPushTime = now
-}const clampCtrl = (v) => Math.max(CTRL_EDGE_PAD, Math.min(1 - CTRL_EDGE_PAD, v))
+} const clampCtrl = (v) => Math.max(CTRL_EDGE_PAD, Math.min(1 - CTRL_EDGE_PAD, v))
 const safeCtrlX01 = () => (typeof ctrlX01 === 'number' ? clampCtrl(clamp01(ctrlX01)) : 0.5)
 const safeCtrlY01 = () => (typeof ctrlY01 === 'number' ? clampCtrl(clamp01(ctrlY01)) : 0.5)
 
@@ -608,16 +608,16 @@ function setup() {
   // ✅ 숫자 위치를 하나하나 직접 입력 (원하는 값으로 수정)
   // left/top은 화면 px 기준. transform은 글자 기준점(앵커)용.
   const labelPositions = [
-    { n: 'A',  left: 345,  top: 32 },
-    { n: 'B',  left: 530,  top: 32 },
-    { n: 'C',  left: 670,  top: 32 },
-    { n: 'D',  left: 810,  top: 32 },
-    { n: 'E',  left: 950,  top: 32 },
-    { n: 'F',  left: 1090, top: 32 },
-    { n: 'G',  left: 1230, top: 32 },
-    { n: 'H',  left: 1370, top: 32 },
-    { n: 'I',  left: 1510, top: 32 },
-    { n: 'J', left: 1690, top: 32,},
+    { n: 'A', left: 345, top: 32 },
+    { n: 'B', left: 530, top: 32 },
+    { n: 'C', left: 670, top: 32 },
+    { n: 'D', left: 810, top: 32 },
+    { n: 'E', left: 950, top: 32 },
+    { n: 'F', left: 1090, top: 32 },
+    { n: 'G', left: 1230, top: 32 },
+    { n: 'H', left: 1370, top: 32 },
+    { n: 'I', left: 1510, top: 32 },
+    { n: 'J', left: 1690, top: 32, },
 
     { n: 'K', left: 1690, top: 220 },
     { n: 'L', left: 1690, top: 360 },
@@ -630,17 +630,17 @@ function setup() {
     { n: 'R', left: 1370, top: 970 },
     { n: 'S', left: 1230, top: 970 },
     { n: 'T', left: 1090, top: 970 },
-    { n: 'U', left: 950,  top: 970 },
-    { n: 'V', left: 810,  top: 970 },
-    { n: 'W', left: 670,  top: 970 },
-    { n: 'X', left: 530,  top: 970 },
-    { n: 'Y', left: 345,  top: 970},
+    { n: 'U', left: 950, top: 970 },
+    { n: 'V', left: 810, top: 970 },
+    { n: 'W', left: 670, top: 970 },
+    { n: 'X', left: 530, top: 970 },
+    { n: 'Y', left: 345, top: 970 },
 
-    { n: 'Z', left: 345,  top: 780 },
-    { n: '←', left: 345,  top: 640 },
-    { n: 'Space', left: 365,  top: 500 },
-    { n: '?', left: 345,  top: 360 },
-    { n: '!', left: 345,  top: 220},
+    { n: 'Z', left: 345, top: 780 },
+    { n: '←', left: 345, top: 640 },
+    { n: 'Space', left: 365, top: 500 },
+    { n: '?', left: 345, top: 360 },
+    { n: '!', left: 345, top: 220 },
   ]
 
   // 트리거(충돌 기준점) 좌표 저장
@@ -703,7 +703,7 @@ function initHydra() {
   const dpr = window.devicePixelRatio || 1
   new Hydra({
     detectAudio: false,
-    width:  Math.floor(windowWidth  * dpr),
+    width: Math.floor(windowWidth * dpr),
     height: Math.floor(windowHeight * dpr),
   })
 
@@ -730,10 +730,10 @@ function initHydra() {
 
     // ---------- Hydra main (NO mouse usage) ----------
     shape(
-        () => Math.floor(safeCtrlX01() * 5) + 4,   // 4~8
-        () => 2 + safeCtrlY01() * 0.22,         // 1.42~1.64 (covers full screen)
-        0
-      )
+      () => Math.floor(safeCtrlX01() * 5) + 4,   // 4~8
+      () => 2 + safeCtrlY01() * 0.22,         // 1.42~1.64 (covers full screen)
+      0
+    )
       .diff(
         src(o0)
           .scrollX(() => followX() * FOLLOW_STRENGTH_MAIN)
@@ -754,10 +754,10 @@ function draw() {
   const MAX_SPEED = 9
 
   // 키보드: 속도에 가속 적용
-  if (keyIsDown(LEFT_ARROW)  || keyIsDown(65)) velX -= KEY_ACCEL
+  if (keyIsDown(LEFT_ARROW) || keyIsDown(65)) velX -= KEY_ACCEL
   if (keyIsDown(RIGHT_ARROW) || keyIsDown(68)) velX += KEY_ACCEL
-  if (keyIsDown(UP_ARROW)    || keyIsDown(87)) velY -= KEY_ACCEL
-  if (keyIsDown(DOWN_ARROW)  || keyIsDown(83)) velY += KEY_ACCEL
+  if (keyIsDown(UP_ARROW) || keyIsDown(87)) velY -= KEY_ACCEL
+  if (keyIsDown(DOWN_ARROW) || keyIsDown(83)) velY += KEY_ACCEL
 
   // 최대 속도 제한
   velX = constrain(velX, -MAX_SPEED, MAX_SPEED)
@@ -775,9 +775,9 @@ function draw() {
   const halfH = Math.max(1, (maskPg.textAscent() + maskPg.textDescent()) * 0.5)
   const margin = 0.6
   const b = svgBounds
-  const minX = b ? b.left   + SVG_OFFSET_LEFT   + halfW * margin : halfW * margin
-  const maxX = b ? b.right  - SVG_OFFSET_RIGHT  - halfW * margin : Math.max(halfW * margin, maskPg.width  - halfW * margin)
-  const minY = b ? b.top    + SVG_OFFSET_TOP    + halfH * margin : halfH * margin
+  const minX = b ? b.left + SVG_OFFSET_LEFT + halfW * margin : halfW * margin
+  const maxX = b ? b.right - SVG_OFFSET_RIGHT - halfW * margin : Math.max(halfW * margin, maskPg.width - halfW * margin)
+  const minY = b ? b.top + SVG_OFFSET_TOP + halfH * margin : halfH * margin
   const maxY = b ? b.bottom - SVG_OFFSET_BOTTOM - halfH * margin : Math.max(halfH * margin, maskPg.height - halfH * margin)
 
   // ------------------------------------------------------------
@@ -863,238 +863,121 @@ function draw() {
       updateMovingDebug(posX, posY, halfW + 2, halfH + 2)
     }
 
-      const touchesWallSegment = (wallX, yMin, yMax) => {
-        // 세로 구간에 여러 점 샘플 + 벽 두께(주변 1px) 샘플
-        const steps = 9
-        const thickness = 2
+    const touchesWallSegment = (wallX, yMin, yMax) => {
+      // 세로 구간에 여러 점 샘플 + 벽 두께(주변 1px) 샘플
+      const steps = 9
+      const thickness = 2
 
-        if (dbg && dbg.ctx) {
-          const ctx = dbg.ctx
-          ctx.save()
-          ctx.lineWidth = 2
-          ctx.strokeStyle = 'rgba(0, 255, 255, 0.85)'
-          ctx.beginPath()
-          ctx.moveTo(wallX + 0.5, yMin)
-          ctx.lineTo(wallX + 0.5, yMax)
-          ctx.stroke()
-          ctx.restore()
-        }
-
-        for (let i = 0; i <= steps; i++) {
-          const t = i / steps
-          const y = yMin + (yMax - yMin) * t
-          for (let dx = -thickness; dx <= thickness; dx++) {
-            const x = wallX + dx
-            const bright = sampleBright(x, y)
-            if (dbg && dbg.ctx) {
-              const hit = bright > dbg.threshold
-              dbg.ctx.fillStyle = hit ? 'rgba(255, 60, 60, 0.95)' : 'rgba(255, 255, 255, 0.65)'
-              dbg.ctx.fillRect(x - dbg.pointSize / 2, y - dbg.pointSize / 2, dbg.pointSize, dbg.pointSize)
-            }
-            if (bright > 20) return true
-          }
-        }
-        return false
+      if (dbg && dbg.ctx) {
+        const ctx = dbg.ctx
+        ctx.save()
+        ctx.lineWidth = 2
+        ctx.strokeStyle = 'rgba(0, 255, 255, 0.85)'
+        ctx.beginPath()
+        ctx.moveTo(wallX + 0.5, yMin)
+        ctx.lineTo(wallX + 0.5, yMax)
+        ctx.stroke()
+        ctx.restore()
       }
 
-      const touchesHWallSegment = (wallY, xMin, xMax) => {
-        // 가로 구간에 여러 점 샘플 + 두께(주변 1px) 샘플
-        const steps = 9
-        const thickness = 2
-
-        if (dbg && dbg.ctx) {
-          const ctx = dbg.ctx
-          ctx.save()
-          ctx.lineWidth = 2
-          ctx.strokeStyle = 'rgba(0, 255, 255, 0.85)'
-          ctx.beginPath()
-          ctx.moveTo(xMin, wallY + 0.5)
-          ctx.lineTo(xMax, wallY + 0.5)
-          ctx.stroke()
-          ctx.restore()
-        }
-
-        for (let i = 0; i <= steps; i++) {
-          const t = i / steps
-          const x = xMin + (xMax - xMin) * t
-          for (let dy = -thickness; dy <= thickness; dy++) {
-            const y = wallY + dy
-            const bright = sampleBright(x, y)
-            if (dbg && dbg.ctx) {
-              const hit = bright > dbg.threshold
-              dbg.ctx.fillStyle = hit ? 'rgba(255, 60, 60, 0.95)' : 'rgba(255, 255, 255, 0.65)'
-              dbg.ctx.fillRect(x - dbg.pointSize / 2, y - dbg.pointSize / 2, dbg.pointSize, dbg.pointSize)
-            }
-            if (bright > 20) return true
+      for (let i = 0; i <= steps; i++) {
+        const t = i / steps
+        const y = yMin + (yMax - yMin) * t
+        for (let dx = -thickness; dx <= thickness; dx++) {
+          const x = wallX + dx
+          const bright = sampleBright(x, y)
+          if (dbg && dbg.ctx) {
+            const hit = bright > dbg.threshold
+            dbg.ctx.fillStyle = hit ? 'rgba(255, 60, 60, 0.95)' : 'rgba(255, 255, 255, 0.65)'
+            dbg.ctx.fillRect(x - dbg.pointSize / 2, y - dbg.pointSize / 2, dbg.pointSize, dbg.pointSize)
           }
+          if (bright > 20) return true
         }
-        return false
+      }
+      return false
+    }
+
+    const touchesHWallSegment = (wallY, xMin, xMax) => {
+      // 가로 구간에 여러 점 샘플 + 두께(주변 1px) 샘플
+      const steps = 9
+      const thickness = 2
+
+      if (dbg && dbg.ctx) {
+        const ctx = dbg.ctx
+        ctx.save()
+        ctx.lineWidth = 2
+        ctx.strokeStyle = 'rgba(0, 255, 255, 0.85)'
+        ctx.beginPath()
+        ctx.moveTo(xMin, wallY + 0.5)
+        ctx.lineTo(xMax, wallY + 0.5)
+        ctx.stroke()
+        ctx.restore()
       }
 
-      const touchesLineSegment = (x1, y1, x2, y2) => {
-        // 임의 방향 선분(여기서는 45도)에 대해 픽셀 샘플링
-        const steps = 11
-        const thickness = 2
-
-        const dx = x2 - x1
-        const dy = y2 - y1
-        const len = Math.max(1e-6, Math.hypot(dx, dy))
-        // 선분의 수직 방향(정규화)
-        const px = -dy / len
-        const py = dx / len
-
-        if (dbg && dbg.ctx) {
-          const ctx = dbg.ctx
-          ctx.save()
-          ctx.lineWidth = 2
-          ctx.strokeStyle = 'rgba(0, 255, 255, 0.85)'
-          ctx.beginPath()
-          ctx.moveTo(x1, y1)
-          ctx.lineTo(x2, y2)
-          ctx.stroke()
-          ctx.restore()
-        }
-
-        for (let i = 0; i <= steps; i++) {
-          const t = i / steps
-          const x = x1 + dx * t
-          const y = y1 + dy * t
-          for (let o = -thickness; o <= thickness; o++) {
-            const sx = x + px * o
-            const sy = y + py * o
-            const bright = sampleBright(sx, sy)
-            if (dbg && dbg.ctx) {
-              const hit = bright > dbg.threshold
-              dbg.ctx.fillStyle = hit ? 'rgba(255, 60, 60, 0.95)' : 'rgba(255, 255, 255, 0.65)'
-              dbg.ctx.fillRect(sx - dbg.pointSize / 2, sy - dbg.pointSize / 2, dbg.pointSize, dbg.pointSize)
-            }
-            if (bright > 20) return true
+      for (let i = 0; i <= steps; i++) {
+        const t = i / steps
+        const x = xMin + (xMax - xMin) * t
+        for (let dy = -thickness; dy <= thickness; dy++) {
+          const y = wallY + dy
+          const bright = sampleBright(x, y)
+          if (dbg && dbg.ctx) {
+            const hit = bright > dbg.threshold
+            dbg.ctx.fillStyle = hit ? 'rgba(255, 60, 60, 0.95)' : 'rgba(255, 255, 255, 0.65)'
+            dbg.ctx.fillRect(x - dbg.pointSize / 2, y - dbg.pointSize / 2, dbg.pointSize, dbg.pointSize)
           }
+          if (bright > 20) return true
         }
-        return false
+      }
+      return false
+    }
+
+    const touchesLineSegment = (x1, y1, x2, y2) => {
+      // 임의 방향 선분(여기서는 45도)에 대해 픽셀 샘플링
+      const steps = 11
+      const thickness = 2
+
+      const dx = x2 - x1
+      const dy = y2 - y1
+      const len = Math.max(1e-6, Math.hypot(dx, dy))
+      // 선분의 수직 방향(정규화)
+      const px = -dy / len
+      const py = dx / len
+
+      if (dbg && dbg.ctx) {
+        const ctx = dbg.ctx
+        ctx.save()
+        ctx.lineWidth = 2
+        ctx.strokeStyle = 'rgba(0, 255, 255, 0.85)'
+        ctx.beginPath()
+        ctx.moveTo(x1, y1)
+        ctx.lineTo(x2, y2)
+        ctx.stroke()
+        ctx.restore()
       }
 
-      for (const t of letterTriggers) {
-        // Space / ← : 먼저 처리 (문자열 길이가 1이 아니라 isRotatedTriggerChar 오판 방지)
-        if (t.ch === 'Space' || t.ch === '←') {
-          const segH = TRIGGER_SEG_H_DEFAULT
-          if (Math.abs(posY - t.y) > (halfH + segH * 0.5 + TRIGGER_GATE_PAD)) continue
-          const gapX = gapXForChar(t.ch)
-          if (Math.abs(posX - t.x) > (halfW + gapX + TRIGGER_GATE_PAD)) continue
-
-          const wallYMin = t.y - segH / 2
-          const wallYMax = t.y + segH / 2
-          const wallLeft  = t.x - gapX
-          const wallRight = t.x + gapX
-          const hitFirst  = velX >= 0 ? wallRight : wallLeft
-          const hitSecond = velX >= 0 ? wallLeft  : wallRight
-          const hit = touchesWallSegment(hitFirst, wallYMin, wallYMax) ||
-                      touchesWallSegment(hitSecond, wallYMin, wallYMax)
-          if (!hit) continue
-
-          posX = prevX
-          posY = prevY
-          velX = -velX
-          posX += velX * 0.5
-          // movingLetter는 변경 없음
-          if (t.ch === 'Space') {
-            pushToBox('\u00a0')
-          } else {
-            popFromBox()
+      for (let i = 0; i <= steps; i++) {
+        const t = i / steps
+        const x = x1 + dx * t
+        const y = y1 + dy * t
+        for (let o = -thickness; o <= thickness; o++) {
+          const sx = x + px * o
+          const sy = y + py * o
+          const bright = sampleBright(sx, sy)
+          if (dbg && dbg.ctx) {
+            const hit = bright > dbg.threshold
+            dbg.ctx.fillStyle = hit ? 'rgba(255, 60, 60, 0.95)' : 'rgba(255, 255, 255, 0.65)'
+            dbg.ctx.fillRect(sx - dbg.pointSize / 2, sy - dbg.pointSize / 2, dbg.pointSize, dbg.pointSize)
           }
-          triggerCooldown = TRIGGER_COOLDOWN_FRAMES
-          break
+          if (bright > 20) return true
         }
+      }
+      return false
+    }
 
-        // 회전 트리거(B, C~I, Q~X): y±70 위치에 가로 10짜리 세그먼트
-        if (isRotatedTriggerChar(t.ch)) {
-          // 게이트: 트리거 근처일 때만 픽셀 샘플링(큰 글자가 멀리서도 닿는 듯한 오판 방지)
-          if (Math.abs(posX - t.x) > (halfW + ROT_TRIGGER_SEG_W * 0.5 + TRIGGER_GATE_PAD)) continue
-          if (Math.abs(posY - t.y) > (halfH + ROT_TRIGGER_GAP_Y + TRIGGER_GATE_PAD)) continue
-
-          const wallTopY = t.y - ROT_TRIGGER_GAP_Y
-          const wallBottomY = t.y + ROT_TRIGGER_GAP_Y
-          const xMin = t.x - ROT_TRIGGER_SEG_W / 2
-          const xMax = t.x + ROT_TRIGGER_SEG_W / 2
-
-          const hitFirstY = velY >= 0 ? wallBottomY : wallTopY
-          const hitSecondY = velY >= 0 ? wallTopY : wallBottomY
-
-          const hit = touchesHWallSegment(hitFirstY, xMin, xMax) || touchesHWallSegment(hitSecondY, xMin, xMax)
-          if (!hit) continue
-
-          posX = prevX
-          posY = prevY
-          velY = -velY
-          // 살짝 밀어내서 다음 프레임에 계속 닿는 것 방지
-          posY += velY * 0.5
-          movingLetter = t.ch
-          pushToBox(t.ch)
-          triggerCooldown = TRIGGER_COOLDOWN_FRAMES
-          break
-        }
-
-        // 45도 트리거(A, J, P, Y): 대각선 선분 2개
-        if (isAngled45TriggerChar(t.ch)) {
-          const segH = (t.ch >= 'P' && t.ch <= 'Y') ? WALL_SEG_H_BOTTOM : WALL_SEG_H_DEFAULT
-          const segLen = segH
-          const gap = TRIGGER_GAP_X * ANGLED45_GAP_SCALE
-
-          // 게이트: 트리거 근처일 때만 샘플링
-          if (Math.abs(posX - t.x) > (halfW + gap + TRIGGER_GATE_PAD)) continue
-          if (Math.abs(posY - t.y) > (halfH + gap + TRIGGER_GATE_PAD)) continue
-
-          const { dirX, dirY, nX, nY } = angled45VectorsForChar(t.ch)
-
-          // 두 개의 평행 선분 중심
-          const c1x = t.x + nX * gap
-          const c1y = t.y + nY * gap
-          const c2x = t.x - nX * gap
-          const c2y = t.y - nY * gap
-
-          const s1x1 = c1x - dirX * (segLen / 2)
-          const s1y1 = c1y - dirY * (segLen / 2)
-          const s1x2 = c1x + dirX * (segLen / 2)
-          const s1y2 = c1y + dirY * (segLen / 2)
-
-          const s2x1 = c2x - dirX * (segLen / 2)
-          const s2y1 = c2y - dirY * (segLen / 2)
-          const s2x2 = c2x + dirX * (segLen / 2)
-          const s2y2 = c2y + dirY * (segLen / 2)
-
-          // 이동 방향에 따라 먼저 닿을 가능성이 큰 선분부터
-          const vDotN = velX * nX + velY * nY
-          const firstIs2 = vDotN >= 0
-
-          const hit = firstIs2
-            ? (touchesLineSegment(s2x1, s2y1, s2x2, s2y2) || touchesLineSegment(s1x1, s1y1, s1x2, s1y2))
-            : (touchesLineSegment(s1x1, s1y1, s1x2, s1y2) || touchesLineSegment(s2x1, s2y1, s2x2, s2y2))
-
-          if (!hit) continue
-
-          // 반사(선분 법선 기준)
-          posX = prevX
-          posY = prevY
-
-          const nLen = Math.hypot(nX, nY) || 1
-          const nnX = nX / nLen
-          const nnY = nY / nLen
-          const dot = velX * nnX + velY * nnY
-          velX = velX - 2 * dot * nnX
-          velY = velY - 2 * dot * nnY
-
-          // 살짝 밀어내서 다음 프레임에 계속 닿는 것 방지
-          posX += velX * 0.5
-          posY += velY * 0.5
-
-          movingLetter = t.ch
-          pushToBox(t.ch)
-          triggerCooldown = TRIGGER_COOLDOWN_FRAMES
-          break
-        }
-
-        // 게이트: 트리거 근처일 때만 픽셀 샘플링(큰 글자+회전으로 멀리서 닿는 듯한 현상 방지)
-        const segH = (t.ch >= 'P' && t.ch <= 'Y') ? WALL_SEG_H_BOTTOM : WALL_SEG_H_DEFAULT
+    for (const t of letterTriggers) {
+      // Space / ← : 먼저 처리 (문자열 길이가 1이 아니라 isRotatedTriggerChar 오판 방지)
+      if (t.ch === 'Space' || t.ch === '←') {
+        const segH = TRIGGER_SEG_H_DEFAULT
         if (Math.abs(posY - t.y) > (halfH + segH * 0.5 + TRIGGER_GATE_PAD)) continue
         const gapX = gapXForChar(t.ch)
         if (Math.abs(posX - t.x) > (halfW + gapX + TRIGGER_GATE_PAD)) continue
@@ -1103,30 +986,147 @@ function draw() {
         const wallYMax = t.y + segH / 2
         const wallLeft = t.x - gapX
         const wallRight = t.x + gapX
-
-        // 이동 방향에 따라 먼저 닿을 가능성이 큰 벽부터 체크
         const hitFirst = velX >= 0 ? wallRight : wallLeft
         const hitSecond = velX >= 0 ? wallLeft : wallRight
-
-        const hit = touchesWallSegment(hitFirst, wallYMin, wallYMax) || touchesWallSegment(hitSecond, wallYMin, wallYMax)
+        const hit = touchesWallSegment(hitFirst, wallYMin, wallYMax) ||
+          touchesWallSegment(hitSecond, wallYMin, wallYMax)
         if (!hit) continue
 
-        // 충돌 처리: 일단 이전 위치로 되돌리고 반사 (outline 기반이라 penetration 해결을 단순화)
         posX = prevX
         posY = prevY
         velX = -velX
-        // 살짝 밀어내서 다음 프레임에 계속 닿는 것 방지
         posX += velX * 0.5
+        // movingLetter는 변경 없음
+        if (t.ch === 'Space') {
+          pushToBox('\u00a0')
+        } else {
+          popFromBox()
+        }
+        triggerCooldown = TRIGGER_COOLDOWN_FRAMES
+        break
+      }
+
+      // 회전 트리거(B, C~I, Q~X): y±70 위치에 가로 10짜리 세그먼트
+      if (isRotatedTriggerChar(t.ch)) {
+        // 게이트: 트리거 근처일 때만 픽셀 샘플링(큰 글자가 멀리서도 닿는 듯한 오판 방지)
+        if (Math.abs(posX - t.x) > (halfW + ROT_TRIGGER_SEG_W * 0.5 + TRIGGER_GATE_PAD)) continue
+        if (Math.abs(posY - t.y) > (halfH + ROT_TRIGGER_GAP_Y + TRIGGER_GATE_PAD)) continue
+
+        const wallTopY = t.y - ROT_TRIGGER_GAP_Y
+        const wallBottomY = t.y + ROT_TRIGGER_GAP_Y
+        const xMin = t.x - ROT_TRIGGER_SEG_W / 2
+        const xMax = t.x + ROT_TRIGGER_SEG_W / 2
+
+        const hitFirstY = velY >= 0 ? wallBottomY : wallTopY
+        const hitSecondY = velY >= 0 ? wallTopY : wallBottomY
+
+        const hit = touchesHWallSegment(hitFirstY, xMin, xMax) || touchesHWallSegment(hitSecondY, xMin, xMax)
+        if (!hit) continue
+
+        posX = prevX
+        posY = prevY
+        velY = -velY
+        // 살짝 밀어내서 다음 프레임에 계속 닿는 것 방지
+        posY += velY * 0.5
         movingLetter = t.ch
         pushToBox(t.ch)
         triggerCooldown = TRIGGER_COOLDOWN_FRAMES
         break
       }
+
+      // 45도 트리거(A, J, P, Y): 대각선 선분 2개
+      if (isAngled45TriggerChar(t.ch)) {
+        const segH = (t.ch >= 'P' && t.ch <= 'Y') ? WALL_SEG_H_BOTTOM : WALL_SEG_H_DEFAULT
+        const segLen = segH
+        const gap = TRIGGER_GAP_X * ANGLED45_GAP_SCALE
+
+        // 게이트: 트리거 근처일 때만 샘플링
+        if (Math.abs(posX - t.x) > (halfW + gap + TRIGGER_GATE_PAD)) continue
+        if (Math.abs(posY - t.y) > (halfH + gap + TRIGGER_GATE_PAD)) continue
+
+        const { dirX, dirY, nX, nY } = angled45VectorsForChar(t.ch)
+
+        // 두 개의 평행 선분 중심
+        const c1x = t.x + nX * gap
+        const c1y = t.y + nY * gap
+        const c2x = t.x - nX * gap
+        const c2y = t.y - nY * gap
+
+        const s1x1 = c1x - dirX * (segLen / 2)
+        const s1y1 = c1y - dirY * (segLen / 2)
+        const s1x2 = c1x + dirX * (segLen / 2)
+        const s1y2 = c1y + dirY * (segLen / 2)
+
+        const s2x1 = c2x - dirX * (segLen / 2)
+        const s2y1 = c2y - dirY * (segLen / 2)
+        const s2x2 = c2x + dirX * (segLen / 2)
+        const s2y2 = c2y + dirY * (segLen / 2)
+
+        // 이동 방향에 따라 먼저 닿을 가능성이 큰 선분부터
+        const vDotN = velX * nX + velY * nY
+        const firstIs2 = vDotN >= 0
+
+        const hit = firstIs2
+          ? (touchesLineSegment(s2x1, s2y1, s2x2, s2y2) || touchesLineSegment(s1x1, s1y1, s1x2, s1y2))
+          : (touchesLineSegment(s1x1, s1y1, s1x2, s1y2) || touchesLineSegment(s2x1, s2y1, s2x2, s2y2))
+
+        if (!hit) continue
+
+        // 반사(선분 법선 기준)
+        posX = prevX
+        posY = prevY
+
+        const nLen = Math.hypot(nX, nY) || 1
+        const nnX = nX / nLen
+        const nnY = nY / nLen
+        const dot = velX * nnX + velY * nnY
+        velX = velX - 2 * dot * nnX
+        velY = velY - 2 * dot * nnY
+
+        // 살짝 밀어내서 다음 프레임에 계속 닿는 것 방지
+        posX += velX * 0.5
+        posY += velY * 0.5
+
+        movingLetter = t.ch
+        pushToBox(t.ch)
+        triggerCooldown = TRIGGER_COOLDOWN_FRAMES
+        break
+      }
+
+      // 게이트: 트리거 근처일 때만 픽셀 샘플링(큰 글자+회전으로 멀리서 닿는 듯한 현상 방지)
+      const segH = (t.ch >= 'P' && t.ch <= 'Y') ? WALL_SEG_H_BOTTOM : WALL_SEG_H_DEFAULT
+      if (Math.abs(posY - t.y) > (halfH + segH * 0.5 + TRIGGER_GATE_PAD)) continue
+      const gapX = gapXForChar(t.ch)
+      if (Math.abs(posX - t.x) > (halfW + gapX + TRIGGER_GATE_PAD)) continue
+
+      const wallYMin = t.y - segH / 2
+      const wallYMax = t.y + segH / 2
+      const wallLeft = t.x - gapX
+      const wallRight = t.x + gapX
+
+      // 이동 방향에 따라 먼저 닿을 가능성이 큰 벽부터 체크
+      const hitFirst = velX >= 0 ? wallRight : wallLeft
+      const hitSecond = velX >= 0 ? wallLeft : wallRight
+
+      const hit = touchesWallSegment(hitFirst, wallYMin, wallYMax) || touchesWallSegment(hitSecond, wallYMin, wallYMax)
+      if (!hit) continue
+
+      // 충돌 처리: 일단 이전 위치로 되돌리고 반사 (outline 기반이라 penetration 해결을 단순화)
+      posX = prevX
+      posY = prevY
+      velX = -velX
+      // 살짝 밀어내서 다음 프레임에 계속 닿는 것 방지
+      posX += velX * 0.5
+      movingLetter = t.ch
+      pushToBox(t.ch)
+      triggerCooldown = TRIGGER_COOLDOWN_FRAMES
+      break
+    }
   }
 
-  if (posX < minX) { posX = minX; velX =  Math.abs(velX) }
+  if (posX < minX) { posX = minX; velX = Math.abs(velX) }
   if (posX > maxX) { posX = maxX; velX = -Math.abs(velX) }
-  if (posY < minY) { posY = minY; velY =  Math.abs(velY) }
+  if (posY < minY) { posY = minY; velY = Math.abs(velY) }
   if (posY > maxY) { posY = maxY; velY = -Math.abs(velY) }
 
   // Hydra 컨트롤 값 업데이트
