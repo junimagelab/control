@@ -358,54 +358,53 @@ function updateSvgBoundsForOverlay() {
 // ============================================================
 // ✅ 코드 기반 그리드 라인 (SVG 대체)
 // ============================================================
-// SVG viewBox: 5442.52 × 3061.42 기준 좌표를 비율로 변환
-const VB_W = 5442.52
-const VB_H = 3061.42
+// SVG viewBox 5442.52×3061.42, 원래 right-aligned, height=100vh
+// → 1920×1024 기준으로 스크린 좌표 사전 계산
+// SVG 영역: left=99.8, width=1820.2, height=1024
+const _GL = 99.8        // grid left at 1920
+const _GW = 1820.2      // grid width at 1920
+const _GH = 1024        // grid height (= REF_H)
+const _VBW = 5442.52
+const _VBH = 3061.42
 
-// 세로 라인 9개의 x 위치 (viewBox 비율)
-const VERT_X_RATIOS = [
-  1548.91 / VB_W, 1977.17 / VB_W, 2405.44 / VB_W, 2833.70 / VB_W,
-  3261.97 / VB_W, 3690.24 / VB_W, 4118.50 / VB_W, 4546.77 / VB_W, 4975.03 / VB_W
+// viewBox → screen px 변환 함수 (1920×1024 기준)
+const _gx = (vx) => _GL + (vx / _VBW) * _GW
+const _gy = (vy) => (vy / _VBH) * _GH
+
+// 세로 라인 9개의 x 위치 (REF 기준 px)
+const VERT_LINE_X = [
+  _gx(1548.91), _gx(1977.17), _gx(2405.44), _gx(2833.70),
+  _gx(3261.97), _gx(3690.24), _gx(4118.50), _gx(4546.77), _gx(4975.03)
 ]
-// 세로 라인 세그먼트 y 범위 (7개 세그먼트)
+// 세로 라인 세그먼트 y 범위 (7개, REF 기준 px)
 const VERT_SEG_Y = [
-  [75.18 / VB_H, 413.90 / VB_H],
-  [503.90 / VB_H, 842.62 / VB_H],
-  [932.63 / VB_H, 1271.34 / VB_H],
-  [1361.35 / VB_H, 1700.07 / VB_H],
-  [1790.07 / VB_H, 2128.79 / VB_H],
-  [2218.80 / VB_H, 2557.51 / VB_H],
-  [2647.52 / VB_H, 2986.24 / VB_H],
+  [_gy(75.18), _gy(413.90)],
+  [_gy(503.90), _gy(842.62)],
+  [_gy(932.63), _gy(1271.34)],
+  [_gy(1361.35), _gy(1700.07)],
+  [_gy(1790.07), _gy(2128.79)],
+  [_gy(2218.80), _gy(2557.51)],
+  [_gy(2647.52), _gy(2986.24)],
 ]
 
-// 가로 라인 6개의 y 위치 (viewBox 비율)
-const HORIZ_Y_RATIOS = [
-  458.98 / VB_H, 886.73 / VB_H, 1314.47 / VB_H,
-  1742.22 / VB_H, 2169.96 / VB_H, 2597.70 / VB_H
+// 가로 라인 6개의 y 위치 (REF 기준 px)
+const HORIZ_LINE_Y = [
+  _gy(458.98), _gy(886.73), _gy(1314.47),
+  _gy(1742.22), _gy(2169.96), _gy(2597.70)
 ]
-// 가로 라인 세그먼트 x 범위 (11개 세그먼트)
+// 가로 라인 세그먼트 x 범위 (10개, REF 기준 px)
 const HORIZ_SEG_X = [
-  [1163.62 / VB_W, 1502.34 / VB_W],
-  [1592.34 / VB_W, 1931.06 / VB_W],
-  [2021.07 / VB_W, 2359.78 / VB_W],
-  [2449.79 / VB_W, 2788.51 / VB_W],
-  [2878.51 / VB_W, 3217.23 / VB_W],
-  [3307.24 / VB_W, 3645.95 / VB_W],
-  [3735.96 / VB_W, 4074.68 / VB_W],
-  [4164.68 / VB_W, 4503.40 / VB_W],
-  [4593.40 / VB_W, 4932.12 / VB_W],
-  [5022.13 / VB_W, 5360.84 / VB_W],
+  [_gx(1163.62), _gx(1502.34)],
+  [_gx(1592.34), _gx(1931.06)],
+  [_gx(2021.07), _gx(2359.78)],
+  [_gx(2449.79), _gx(2788.51)],
+  [_gx(2878.51), _gx(3217.23)],
+  [_gx(3307.24), _gx(3645.95)],
+  [_gx(3735.96), _gx(4074.68)],
+  [_gx(4164.68), _gx(4503.40)],
+  [_gx(4593.40), _gx(4932.12)],
+  [_gx(5022.13), _gx(5360.84)],
 ]
-
-// 그리드 영역: 현재 윈도우 전체에 매핑 (어떤 화면이든 넘치지 않음)
-function getGridBounds() {
-  return {
-    left: 0,
-    top: 0,
-    width: windowWidth,
-    height: windowHeight,
-  }
-}
 
 function redrawSvgRedOverlay() {
   const ctx = ensureSvgRedOverlay()
@@ -415,8 +414,9 @@ function redrawSvgRedOverlay() {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
   ctx.clearRect(0, 0, windowWidth, windowHeight)
 
-  const gb = getGridBounds()
-  const lineW = Math.max(1, 3.44 * (gb.height / VB_H))
+  const sx = windowWidth / REF_W
+  const sy = windowHeight / REF_H
+  const lineW = Math.max(1, 3.44 * sy)
 
   ctx.save()
   ctx.strokeStyle = 'rgba(255, 255, 255, 1)'
@@ -425,21 +425,21 @@ function redrawSvgRedOverlay() {
   ctx.lineJoin = 'miter'
   ctx.beginPath()
 
-  // 세로 라인
-  for (const xr of VERT_X_RATIOS) {
-    const x = gb.left + xr * gb.width
-    for (const [y1r, y2r] of VERT_SEG_Y) {
-      ctx.moveTo(x, gb.top + y1r * gb.height)
-      ctx.lineTo(x, gb.top + y2r * gb.height)
+  // 세로 라인 (x는 sx로, y는 sy로 스케일)
+  for (const lx of VERT_LINE_X) {
+    const x = lx * sx
+    for (const [y1, y2] of VERT_SEG_Y) {
+      ctx.moveTo(x, y1 * sy)
+      ctx.lineTo(x, y2 * sy)
     }
   }
 
-  // 가로 라인
-  for (const yr of HORIZ_Y_RATIOS) {
-    const y = gb.top + yr * gb.height
-    for (const [x1r, x2r] of HORIZ_SEG_X) {
-      ctx.moveTo(gb.left + x1r * gb.width, y)
-      ctx.lineTo(gb.left + x2r * gb.width, y)
+  // 가로 라인 (y는 sy로, x는 sx로 스케일)
+  for (const ly of HORIZ_LINE_Y) {
+    const y = ly * sy
+    for (const [x1, x2] of HORIZ_SEG_X) {
+      ctx.moveTo(x1 * sx, y)
+      ctx.lineTo(x2 * sx, y)
     }
   }
 
