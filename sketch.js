@@ -397,19 +397,13 @@ const HORIZ_SEG_X = [
   [5022.13 / VB_W, 5360.84 / VB_W],
 ]
 
-// 그리드 영역: REF_W×REF_H 기준으로 계산한 뒤 현재 윈도우에 스케일링
+// 그리드 영역: 현재 윈도우 전체에 매핑 (어떤 화면이든 넘치지 않음)
 function getGridBounds() {
-  const sx = windowWidth / REF_W
-  const sy = windowHeight / REF_H
-  const aspect = VB_W / VB_H
-  const h = REF_H
-  const w = h * aspect
-  const left = REF_W - w
   return {
-    left: left * sx,
+    left: 0,
     top: 0,
-    width: w * sx,
-    height: h * sy,
+    width: windowWidth,
+    height: windowHeight,
   }
 }
 
