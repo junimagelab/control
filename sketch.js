@@ -138,10 +138,18 @@ let velX = 2.5
 let velY = 1.8
 let rot = 0
 let hydraInitialized = false
+let hydraVal = 1.0  // 🎥 하이드라 강도 조절 (버튼 4/6)
 
 // 🎮 Gamepad
 let gamepadConnected = false
 let prevBtnState = []  // 버튼 디바운스용
+
+// 💫 회전 및 스케일 애니메이션 (버튼 7)
+let isSpinning = false
+let spinProgress = 0
+let savedFontPx = 0
+let savedRot = 0
+const SPIN_DURATION_FRAMES = 120 // ~2초 (60fps 기준)
 
 // 🎆 방사형 글자 발사 파티클
 let burstParticles = []
@@ -813,7 +821,7 @@ function initHydra() {
       .brightness(-0.2)
       .scrollX(() => Math.sin(time * 0.20) * 0.01 + followX() * FOLLOW_STRENGTH_BASE)
       .scrollY(() => Math.cos(time * 0.15) * 0.01 + followY() * FOLLOW_STRENGTH_BASE)
-      .modulate(osc(9, 0.03, 0.8), 0.03)
+      .modulate(osc(9, () => 0.03 * hydraVal, 0.8), () => 0.05 * hydraVal)
       .out(o0)
 
     // ---------- Hydra main (NO mouse usage) ----------
@@ -826,8 +834,8 @@ function initHydra() {
         src(o0)
           .scrollX(() => followX() * FOLLOW_STRENGTH_MAIN)
           .scrollY(() => 0.01 + followY() * FOLLOW_STRENGTH_MAIN)
-          .modulate(osc(10, 0.1).brightness(-0.5), 0.02)
-          .scale(0.9)
+          .modulate(osc(10, () => 0.1 * hydraVal).brightness(-0.5), () => 0.05 * hydraVal)
+          .scale(() => 0.9 + hydraVal * 0.02)
       )
       .mask(src(s0).thresh(0.35, 0.15))
       .out()
@@ -881,11 +889,50 @@ function draw() {
       const btn5 = gp.buttons[5] && gp.buttons[5].pressed
       if (btn5 && !prevBtnState[5]) spawnBurst()
       prevBtnState[5] = btn5
+      // 버튼 4: 하이드라 벨류 업 / 버튼 6: 하이드라 벨류 다운
+      const btn4 = gp.buttons[4] && gp.buttons[4].pressed
+      const btn6 = gp.buttons[6] && gp.buttons[6].pressed
+      if (btn4 && !prevBtnState[4]) {
+        hydraVal = Math.min(10.0, hydraVal + 1.0)
+        console.log('🎥 Hydra Value Up:', hydraVal.toFixed(1))
+      }
+      if (btn6 && !prevBtnState[6]) {
+        hydraVal = Math.max(0.1, hydraVal - 1.0)
+        console.log('🎥 Hydra Value Down:', hydraVal.toFixed(1))
+      }
+      prevBtnState[4] = btn4
+      prevBtnState[6] = btn6
+      // 버튼 7: 5바퀴 회전 + 300% 거대화 애니메이션
+      const btn7 = gp.buttons[7] && gp.buttons[7].pressed
+      if (btn7 && !prevBtnState[7] && !isSpinning) {
+        isSpinning = true
+        spinProgress = 0
+        savedFontPx = fontPx
+        savedRot = rot
+      }
+      prevBtnState[7] = btn7
       // 버튼 9: 페이지 리셋
       if (gp.buttons[9] && gp.buttons[9].pressed) {
         window.location.reload()
       }
       break
+    }
+  }
+
+  // 💫 회전/스케일 애니메이션 업데이트
+  if (isSpinning) {
+    spinProgress += 1 / SPIN_DURATION_FRAMES
+    if (spinProgress >= 1) {
+      isSpinning = false
+      spinProgress = 0
+      fontPx = savedFontPx
+      rot = savedRot
+    } else {
+      // 5바퀴 회전
+      rot = savedRot + spinProgress * (Math.PI * 2 * 5)
+      // 300% 커졌다가 돌아오기 (사인 곡선으로 1x -> 3x -> 1x)
+      const scaleMult = 1 + Math.sin(spinProgress * Math.PI) * 2
+      fontPx = savedFontPx * scaleMult
     }
   }
 
