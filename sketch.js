@@ -740,7 +740,7 @@ function setup() {
   dividerEl = dividerLine.elt
 
   // ✅ 점선 아래 설명 텍스트
-  const descText = createDiv('This work explores axial accumulation as a visual method, asking what kind of typeface might emerge when letterforms are layered and reassembled, shifting our perspective on what a font can become in future.')
+  const descText = createDiv('This work rethinks writing as a practice that unfolds on a surface constantly in motion, asking how writing might be understood not as a static act but as one shaped by continuous movement.')
   descText.style('position', 'fixed')
   descText.style('font-family', '"Courier New", Courier, monospace')
   descText.style('color', '#ffffff')
